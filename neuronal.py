@@ -40,12 +40,14 @@ class Neuronal:
 
     @staticmethod
     def tanh(x):
-        z = (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+        # z = (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+        z = np.tanh(x)
         return z
 
     @staticmethod
     def tanh_derivative(x):
-        z = 1 - (math.pow(x, 2))
+        # z = 1 - (math.pow(x, 2))
+        z = 1.0 - np.tanh(x) ** 2
         return z
 
     @staticmethod
