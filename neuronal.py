@@ -59,6 +59,9 @@ class Neuronal:
     def identity_function(x):
         return x
 
+    @staticmethod
+    def identity_derivated(x):
+        return np.ones_like(x)
     def train(self, input_list: list, output_list: list, epoch):
         # Comprobas las capas que sea el mismo numero y todo lo demas antes en enviar al entrenamientos de capas
         self.__train_layers__(input_list, output_list, epoch)
@@ -102,28 +105,28 @@ class Neuronal:
 
         z = np.dot(self.output_result[self.hidden_layers-1], self.weights[-1])
         self.output_result.append(self.activation_function_outputs(z + self.biases[-1]))
+
         return self.output_result[-1]
 
     def backward_pass(self, input_list: list, output_list):
-        delta_errors = [None] * (self.hidden_layers + 1)
         # errors = y - output_res
         error = output_list - self.output_result[-1]
         # delta error
         if self.output_layers_activation_function == "STEP":
-            delta_errors[-1] = error
+            delta_errors = [error]
         else:
-            delta_errors[-1] = error * self.output_result[-1]
-
+            delta_errors = [self.identity_derivated(error * self.output_result[-1])]
 
         for i in range(self.hidden_layers - 1, -1, -1):
             error = np.dot(delta_errors[-1], self.weights[i + 1].T)
-            delta_errors[i] = error * self.derivate_function_hidden_layers(self.output_result[i])
+            delta_errors.append(error * self.derivate_function_hidden_layers(self.output_result[i]))
+        delta_errors.reverse()
 
         for i in range(len(self.weights)):
             if i == 0:
                 self.weights[i] += np.dot(np.array([input_list]).T, delta_errors[i]) * self.learning_rate
             else:
-                self.weights[i] += np.dot(self.output_result[i].T, delta_errors[i]) * self.learning_rate
+                self.weights[i] += np.dot(self.output_result[i-1].T, delta_errors[i]) * self.learning_rate
 
             self.biases[i] += np.sum(delta_errors[i], axis=0, keepdims=True) * self.learning_rate
 
